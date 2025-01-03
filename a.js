@@ -689,6 +689,16 @@ function handleArrest() {
 }
 function handleClue() {
   if (!(isUiResponsive() && isGameInProgress() && !isInputPromptInProgress())) return;
+      // 5% chance to trigger runFarther
+    const runFartherChance = 0.8; // 5% probability
+    if (Math.random() < runFartherChance) {
+        console.log("runFarther triggered by Clue button!");
+        const runFarther = Math.random() < persistentState.thiefBehavior.runFarther; // Check if thief runs farther
+        for (let i = 0; i < 11 + (runFarther ? 1 : 0) - 1; i++) {
+            playAnimations(makeAMove()); // Trigger thief movement
+        }
+        return; // Exit after triggering runFarther to avoid normal clue logic
+    }
   doClue();
 }
 function handleNumber(number) {
