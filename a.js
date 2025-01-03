@@ -1107,7 +1107,7 @@ function doArrest(guess) {
       persistentState.game.runCount++;
       animations.push("Run");
       let runFarther = Math.random() < persistentState.thiefBehavior.runFarther;
-      const baseMoves = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+      const baseMoves = Math.floor(Math.random() * (11 - 5 + 1)) + 5;
       for (let i = 0; i < baseMoves + runFarther - 1; i++) {
         animations.push(...makeAMove());
       }
