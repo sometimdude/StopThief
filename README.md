@@ -4,7 +4,7 @@ Web app that recreates the behavior of the Electronic Crime Scanner(TM) from the
 
 # Demo
 
-http://wolfesoftware.com/stop-thief/
+
 
 ![screenshot](https://user-images.githubusercontent.com/87436/209446532-e92e00e8-7ca4-4a80-af9b-c5ae896d1030.png)
 
