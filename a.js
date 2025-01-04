@@ -747,7 +747,7 @@ var persistentState = {
   },
   thiefBehavior: {
     move: 0.75,
-    comply: 0.25,
+    comply: 0.40,
     runFarther: 0.5,
     sameSubway: true,
     getsTired: false,
@@ -1171,25 +1171,25 @@ function doClue() {
 }
 
 // Triggers the runaway sequence for a random number of moves (2-20)
-function triggerRunawaySequence() {
-  console.log("Runaway sequence triggered by Clue button!");
+function triggerRunawaySequence(totalMoves = getRandomInt(2, 20), delay = 2500) {
+  console.log("Runaway sequence triggered!");
 
-  // Play the runaway sound
-  playSounds([sounds.Run]); // Use playSounds to play the runaway sound
+  // Increment runaway counter if needed
+  persistentState.game.runCount++;
 
-  // Generate a random number of moves between 2 and 20
-  const totalMoves = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+  // Play runaway sound
+  playSounds([sounds.Run]);
 
-  // Sequentially play the runaway sequence
-  function playRunawaySequence(moveCount) {
-      if (moveCount <= 0) return; // Stop when all moves are completed
-      playAnimations(makeAMove()); // Execute one move and animate
-      setTimeout(() => playRunawaySequence(moveCount - 1), 1000); // Delay before next move
-  }
+  // Start the move sequence
+  playMoveSequence(totalMoves, delay);
 
-  console.log(`Thief will move ${totalMoves} times (randomized).`);
-  playRunawaySequence(totalMoves);
+  console.log(`Thief will move ${totalMoves} times.`);
 }
+
+
+
+
+
 
 // Handles the normal clue behavior
 function handleNormalClueBehavior() {
@@ -1238,7 +1238,7 @@ function makeASingleMove() {
   } else {
     // move
     let currentRoom = movementHistory[movementHistory.length - 1];
-    let previousRoom = movementHistory[movementHistory.length - 2];
+    let previousRoom = movementHistory[movementHistory.length - 2]; 
     let orientation = roomToDoorwayOrientation[currentRoom];
     let doorwayAllows = (room) => true;
     if (orientation != null) {
@@ -1307,6 +1307,62 @@ function makeASingleMove() {
 
   return clue;
 }
+
+function playMoveSequence(totalMoves, delay = 1000) {
+  if (totalMoves <= 0) {
+    console.log("Move sequence completed.");
+    return; // Exit when all moves are completed
+  }
+
+  // Call `makeASingleMove` to make one move
+  let moves = makeASingleMove();
+
+  if (Math.random() < persistentState.thiefBehavior.move) {
+    playAnimations(makeAMove());
+    renderMap();
+} else {
+    // Wait behavior
+    persistentState.game.waitTimeHere++;
+    playAnimations(["Wait"]);
+}
+
+  // Ensure moves are in array format
+  if (!Array.isArray(moves)) {
+    moves = moves ? [moves] : [];
+  }
+
+  // Check if moves exist
+  if (moves.length === 0) {
+    console.error("No valid moves generated. Ending sequence.");
+    return; // Exit if no valid moves
+  }
+ 
+  
+  const animations = moves.map(clue => clue.slice(1));
+
+  if (animations.length === 0) {
+    console.error("No valid animations mapped. Ending sequence.");
+    return; // Exit if no valid animations
+  }
+
+  // Play the animations and sounds for this move
+  //playAnimations(animations);
+
+  // Trigger rendering updates after every move
+  renderMap(); // Update the visual map
+  renderHistory(); // Update move history UI
+  render(); // General rendering (if exists)
+
+  console.log(`Move ${totalMoves} completed. Remaining: ${totalMoves - 1}`);
+
+  // Wait for the specified delay and then recursively call the function
+  setTimeout(() => playMoveSequence(totalMoves - 1, delay), delay);
+}
+
+
+
+
+
 
 function renderClue(room) {
   if (room === theSubway) return " Sb";
