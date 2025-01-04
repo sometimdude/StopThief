@@ -689,25 +689,6 @@ function handleArrest() {
 }
 function handleClue() {
   if (!(isUiResponsive() && isGameInProgress() && !isInputPromptInProgress())) return;
-    // 5% chance to trigger runFarther
-    const runFartherChance = 0.8; // 5% probability
-    if (Math.random() < runFartherChance) {
-        console.log("runFarther triggered by Clue button!");
-
-        // Generate a random number of moves between 2 and 12
-        const totalMoves = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
-
-        // Sequentially play each move in the runFarther sequence
-        function playRunFartherSequence(moveCount) {
-            if (moveCount <= 0) return; // Stop when all moves are completed
-            playAnimations(makeAMove()); // Play a single move
-            setTimeout(() => playRunFartherSequence(moveCount - 1), 1000); // Delay before next move
-        }
-
-        console.log(`Thief will move ${totalMoves} times (randomized).`);
-        playRunFartherSequence(totalMoves);
-        return; // Exit after triggering runFarther to avoid normal clue logic
-    }
   doClue();
 }
 function handleNumber(number) {
