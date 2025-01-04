@@ -690,7 +690,7 @@ function handleArrest() {
 function handleClue() {
   if (!(isUiResponsive() && isGameInProgress() && !isInputPromptInProgress())) return;
     // 5% chance to trigger runFarther
-    const runFartherChance = 0.05; // 5% probability
+    const runFartherChance = 0.8; // 5% probability
     if (Math.random() < runFartherChance) {
         console.log("runFarther triggered by Clue button!");
 
