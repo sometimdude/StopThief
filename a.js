@@ -1156,17 +1156,61 @@ function getCurrentRoom() {
 }
 
 function doClue() {
-  if (Math.random() < persistentState.thiefBehavior.move) {
-    playAnimations(makeAMove());
-    renderMap();
-  } else {
-    // Wait
-    persistentState.game.waitTimeHere++;
-    playAnimations(["Wait"]);
+  if (!isUiResponsive() || !isGameInProgress() || isInputPromptInProgress()) return;
+
+  console.log("Clue logic triggered!");
+
+  // Handle runaway logic with a 3% chance
+  if (Math.random() < 0.05) {
+      triggerRunawaySequence();
+      return; // Exit to avoid normal clue logic
   }
+
+  // Handle normal clue logic
+  handleNormalClueBehavior();
+}
+
+// Triggers the runaway sequence for a random number of moves (2-20)
+function triggerRunawaySequence() {
+  console.log("Runaway sequence triggered by Clue button!");
+
+  // Play the runaway sound
+  playSounds([sounds.Run]); // Use playSounds to play the runaway sound
+
+  // Generate a random number of moves between 2 and 20
+  const totalMoves = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+
+  // Sequentially play the runaway sequence
+  function playRunawaySequence(moveCount) {
+      if (moveCount <= 0) return; // Stop when all moves are completed
+      playAnimations(makeAMove()); // Execute one move and animate
+      setTimeout(() => playRunawaySequence(moveCount - 1), 1000); // Delay before next move
+  }
+
+  console.log(`Thief will move ${totalMoves} times (randomized).`);
+  playRunawaySequence(totalMoves);
+}
+
+// Handles the normal clue behavior
+function handleNormalClueBehavior() {
+  if (Math.random() < persistentState.thiefBehavior.move) {
+      playAnimations(makeAMove());
+      renderMap();
+  } else {
+      // Wait behavior
+      persistentState.game.waitTimeHere++;
+      playAnimations(["Wait"]);
+  }
+
   renderHistory();
   render();
 }
+
+// Utility function to get a random integer between min and max (inclusive)
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function makeAMove() {
   const clues = [];
   clues.push(makeASingleMove());
