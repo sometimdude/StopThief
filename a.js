@@ -1,3 +1,4 @@
+"use strict";
 function resize() {
   const backgroundDiv = document.getElementById("crimeScannerBackgroundDiv");
   const crimeScannerCanvas = document.getElementById("crimeScannerCanvas");
@@ -1175,10 +1176,10 @@ function triggerRunawaySequence(totalMoves = getRandomInt(2, 20), delay = 2500) 
   console.log("Runaway sequence triggered!");
 
   // Increment runaway counter if needed
-  persistentState.game.runCount++;
+ // persistentState.game.runCount++;
 
   // Play runaway sound
-  playSounds([sounds.Run]);
+  //playSounds([sounds.Run]);
 
   // Start the move sequence
   playMoveSequence(totalMoves, delay);
@@ -1211,15 +1212,15 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function makeAMove() {
+function makeAMove(isRunning = false) {
   const clues = [];
-  clues.push(makeASingleMove());
+  clues.push(makeASingleMove(isRunning));
   if (getCurrentRoom() == theSubway) {
-    clues.push(makeASingleMove());
+    clues.push(makeASingleMove(isRunning));
   }
   return clues;
 }
-function makeASingleMove() {
+function makeASingleMove(isRunning) {
   const {movementHistory, remainingLoot, clueHistory} = persistentState.game;
   let clue;
   if (movementHistory.length === 0) {
@@ -1279,7 +1280,29 @@ function makeASingleMove() {
     } else if (irresistibleCrimes.length > 0) {
       // Gotta steal
       room = randomArrayItem(irresistibleCrimes);
-    } else {
+    } else if (!isRunning) {
+      console.log("They be RUNNING!!!");
+      room = currentRoom;
+      /*while(room === currentRoom)
+      {
+        console.log(currentRoom);
+        console.log("No Stop");
+        room = randomArrayItem(possibleMoves);
+        console.log(room);
+      }*/
+      // Filter out the current room from possibleMoves
+      
+     let newPossibleMoves = possibleMoves.filter(room => room !== currentRoom);
+  
+      if (newPossibleMoves.length > 0) {
+        
+          room = randomArrayItem(newPossibleMoves);
+          console.log(newPossibleMoves + "<-- this is what it says");
+      } else {
+          console.error("No valid moves available!");
+          return null; // Or handle this case appropriately
+      } 
+  } else {
       // normal movement
       room = randomArrayItem(possibleMoves);
     }
@@ -1309,16 +1332,31 @@ function makeASingleMove() {
 }
 
 function playMoveSequence(totalMoves, delay = 1000) {
-  if (totalMoves <= 0) {
+  persistentState.game.runCount++;
+  const animations = [];
+  animations.push("Run");
+  //let runFarther = Math.random() < persistentState.thiefBehavior.runFarther;
+  //const baseMoves = Math.floor(Math.random() * (11 - 5 + 1)) + 5;
+  for (let i = 0; i < totalMoves - 1; i++) {
+    animations.push(...makeAMove());
+  }
+  animations.push(...makeAMove());
+  renderHistory();
+  renderMap();
+  renderThiefGetsTiredUi();
+  render();
+  playAnimations(animations);
+
+  /* if (totalMoves <= 0) {
     console.log("Move sequence completed.");
     return; // Exit when all moves are completed
   }
 
   // Call `makeASingleMove` to make one move
-  let moves = makeASingleMove();
+ // let moves = makeASingleMove(true);
 
   if (Math.random() < persistentState.thiefBehavior.move) {
-    playAnimations(makeAMove());
+    playAnimations(makeAMove(false));
     renderMap();
 } else {
     // Wait behavior
@@ -1327,36 +1365,36 @@ function playMoveSequence(totalMoves, delay = 1000) {
 }
 
   // Ensure moves are in array format
-  if (!Array.isArray(moves)) {
+ /* if (!Array.isArray(moves)) {
     moves = moves ? [moves] : [];
-  }
+  }*/
 
   // Check if moves exist
-  if (moves.length === 0) {
+  /*if (moves.length === 0) {
     console.error("No valid moves generated. Ending sequence.");
     return; // Exit if no valid moves
-  }
+  }*/
  
   
-  const animations = moves.map(clue => clue.slice(1));
+ /* const animations = moves.map(clue => clue.slice(1));
 
   if (animations.length === 0) {
     console.error("No valid animations mapped. Ending sequence.");
     return; // Exit if no valid animations
-  }
+  }*/
 
   // Play the animations and sounds for this move
   //playAnimations(animations);
 
   // Trigger rendering updates after every move
-  renderMap(); // Update the visual map
+ /* renderMap(); // Update the visual map
   renderHistory(); // Update move history UI
-  render(); // General rendering (if exists)
+  render(); // General rendering (if exists)*/
 
   console.log(`Move ${totalMoves} completed. Remaining: ${totalMoves - 1}`);
 
   // Wait for the specified delay and then recursively call the function
-  setTimeout(() => playMoveSequence(totalMoves - 1, delay), delay);
+  //setTimeout(() => playMoveSequence(totalMoves - 1, delay), delay);
 }
 
 
