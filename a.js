@@ -432,7 +432,20 @@ function playAnimations(animations) {
         const {clueHistory} = persistentState.game;
         sequence.push([sounds.Wait, clueHistory[clueHistory.length - 1][0] + "--", 1.0]);
         continue;
-    }
+        case "Theft": // New Theft case
+        
+        
+        sequence.push(1.2); // Optional delay before the theft animation
+        sequence.push([sounds.Crime, "tF", 1.0]); // Play the theft sound and display the "tf" animation
+        continue;
+        
+        case "Money Stolen":
+        const array = ['50', '100', '500'];
+        const moneyStolen = randomArrayItem(array);
+        sequence.push(1.3);
+        sequence.push([sounds.Glass, moneyStolen, 1.0]);
+        continue;
+        }
     // It's a clue
     if (animation.length !== 3) throw new Error("unexpected animation: " + animation);
     if (sequence.length > 0) {
@@ -551,6 +564,7 @@ function render() {
         case "r": return [0,0,0,0,1,0,1];
         case "l": return [0,0,0,0,1,1,0];
         case "t": return [0,0,0,1,1,1,1];
+        case "f": return [0,1,1,1,0,1,1];
 
         case " ": return [0,0,0,0,0,0,0];
         case "-": return [0,0,0,0,0,0,1];
@@ -1106,6 +1120,11 @@ function doArrest(guess) {
       saveState();
     } else {
       persistentState.game.runCount++;
+      if (Math.random() < 0.03) {
+        animations.push("Theft");
+        animations.push("Money Stolen")
+       
+    }
       animations.push("Run");
       let runFarther = Math.random() < persistentState.thiefBehavior.runFarther;
       const baseMoves = Math.floor(Math.random() * (11 - 5 + 1)) + 5;
@@ -1161,7 +1180,7 @@ function doClue() {
 
   console.log("Clue logic triggered!");
 
-  // Handle runaway logic with a 3% chance
+  // Handle runaway logic with a 5% chance
   if (Math.random() < 0.05) {
       triggerRunawaySequence();
       return; // Exit to avoid normal clue logic
