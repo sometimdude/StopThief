@@ -1120,7 +1120,7 @@ function doArrest(guess) {
       saveState();
     } else {
       persistentState.game.runCount++;
-      if (Math.random() < 0.03) {
+      if (Math.random() < 0.5) {
         animations.push("Theft");
         animations.push("Money Stolen")
        
